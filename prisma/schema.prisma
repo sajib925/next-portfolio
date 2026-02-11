@@ -1,0 +1,127 @@
+
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+// Admin User Model
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  password  String
+  name      String
+  bio       String?
+  avatar    String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  projects  Project[]
+  posts     BlogPost[]
+  messages  Message[]
+}
+
+// Project Model
+model Project {
+  id          String     @id @default(cuid())
+  title       String
+  description String
+  content     String?
+  image       String?
+  imageAlt    String?
+  tags        String[]
+  skills      String[]
+  featured    Boolean    @default(false)
+  liveUrl     String?
+  githubUrl   String?
+  published   Boolean    @default(true)
+  position    Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// Blog Post Model
+model BlogPost {
+  id          String     @id @default(cuid())
+  title       String
+  slug        String     @unique
+  excerpt     String
+  content     String     
+  image       String?
+  imageAlt    String?
+  published   Boolean    @default(true)
+  featured    Boolean    @default(false)
+  tags        String[]
+  readTime    Int        @default(5) // Minutes
+  views       Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([slug])
+}
+
+// Contact Message Model
+model Message {
+  id        String     @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  read      Boolean    @default(false)
+  replied   Boolean    @default(false)
+  createdAt DateTime   @default(now())
+
+  userId    String?
+  user      User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+}
+
+// Skills Model (for About section)
+model Skill {
+  id        String     @id @default(cuid())
+  name      String
+  category  String     // e.g., "Frontend", "Backend", "Design"
+  level     String     // e.g., "Expert", "Intermediate", "Beginner"
+  icon      String?
+  position  Int        @default(0)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+// Experience Model (for About section)
+model Experience {
+  id          String     @id @default(cuid())
+  title       String
+  company     String
+  location    String?
+  description String?
+  startDate   DateTime
+  endDate     DateTime?
+  current     Boolean    @default(false)
+  position    Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// Social Links Model
+model SocialLink {
+  id    String     @id @default(cuid())
+  name  String     @unique
+  url   String
+  icon  String?
+}
